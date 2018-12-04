@@ -1,12 +1,14 @@
-## Welcome to GitHub Pages
+# PrediCARO: A Game of Truth
 
-You can use the [editor on GitHub](https://github.com/EjyVillanueva/PrediCARO/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+## Designing the Program
+  “PrediCARO” is a simple logic game. The rules are simple, there are falling logical
+expressions and the player must decide whether the falling logical expression is true or false. They must click ‘t’ on their keyboard if the expression and ‘f’ otherwise. If the statement reaches the bottom or the player inputted an incorrect answer, it is game over.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
 
-### Markdown
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+## Engine
+The game was designed and made using Python 3. The following functions were defined for
+the game to be played:
 
 ```markdown
 Syntax highlighted code block
