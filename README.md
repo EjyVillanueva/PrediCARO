@@ -10,17 +10,20 @@ expressions and the player must decide whether the falling logical expression is
 The game was designed and made using Python 3. The following functions were defined for
 the game to be played:
 
+1. set_Truth_Sprites() – generates a list of File names for all the sprite images that evaluate to True
+2.set_False_Sprites() – generates a list of File names for all the sprite images that evaluate to False
+3. set_Sprite_Order() – shuffles the possible filenames and creates a new list with mixed True and False file names. It then creates an answer key for these soon-to-be sprites.
+4. setPressSpace() – #creates the Press Space sprite for main menu
+5. setPressEnter() – creates Press Enter sprite
+6. setInstructions() – #creates Instructions Sprite
+7. createSprite(fileName,num) - This function helps generate truth value expressions as sprites. It also sets the y values such that succeeding sprites are at progressively higher y values.
+8. checkCorrect(answer_key,truthVal,spriteNum) - This function checks if the user's evaluation of the expression is correct. It then makes a happy ding sound then returns True if correct. Otherwise, it makes a sad buzzer sound then returns False.
+
+These functions will be used for the game itself. It will be stored in a user-defined module
+called engine.
+
+### Sample Code
 ```markdown
-import pyglet
-from pyglet.window import key
-from pyglet.window import mouse
-import random
-
-correct_sound = pyglet.resource.media('sounds/correct.mp3', streaming = False)
-
-incorrect_sound = pyglet.resource.media('sounds/incorrect.mp3', streaming = False)
-
-#generates a list of File names for all the sprite images that evaluate to True
 def set_Truth_Sprites():
     fileNames = []
     for i in range(15):
@@ -29,80 +32,65 @@ def set_Truth_Sprites():
         fileNames.append(fileName)
 
     return fileNames 
-
-#generates a list of File names for all the sprite images that evaluate to False
-def set_False_Sprites():
-    fileNames = []
-    for i in range(15):
-        num = random.randint(1,11)
-        fileName = "falseExp/FalseExp" + str(num) + ".png"
-        fileNames.append(fileName)
-
-    return fileNames 
-
-#shuffles the possible filenames and creates a new list with mixed True and False file names
-#creates an answer key for these soon-to-be sprites
-def set_Sprite_Order():
-    answer_key = []
-    spriteNames = []
-    truths = set_Truth_Sprites()
-    falses = set_False_Sprites()
-    for i in range(20):
-        val = random.randint(0,1)
-        num = random.randint(0,14)
-        if val == 0:
-            answer_key.append("F")
-            spriteNames.append(falses[num])
-        elif val == 1:
-            answer_key.append("T")
-            spriteNames.append(truths[num])
-    return answer_key, spriteNames
-
-def setPressSpace():
-    #creates the Press Space sprite for main menu
-    press_space= pyglet.image.load_animation('menu-images/Press-Space.gif')
-    press_space_Sprite = pyglet.sprite.Sprite(press_space, x = 27, y = 270)
-    press_space_Sprite.scale = 0.45
-    press_space_Sprite.visible = True 
-    return press_space_Sprite
-
-def setPressEnter():
-    #creates Press Enter sprite
-    press_enter = pyglet.image.load_animation('menu-images/Press-Enter.gif')
-    press_enter_Sprite = pyglet.sprite.Sprite(press_enter, x = 135, y = 60)
-    press_enter_Sprite.scale = 0.25
-    press_enter_Sprite.visible = False
-    return press_enter_Sprite
-
-def setInstructions():
-    #creates Instructions Sprite
-    instructions = pyglet.image.load_animation('menu-images/Instructions-Sprite.png')
-    instruct_Sprite = pyglet.sprite.Sprite(instructions, x = 85, y = 122)
-    instruct_Sprite.scale = 0.38
-    instruct_Sprite.visible = False
-    return instruct_Sprite
-
-def createSprite(fileName,num):
-    #this function helps generate truth value expressions as sprites
-    #it also sets the y values such that succeeding sprites are at progressively higher y values
-    true = pyglet.image.load_animation(fileName)
-    trueSprite = pyglet.sprite.Sprite(true, x = 50, y = 600+(num*250))
-    trueSprite.scale = 0.4
-    trueSprite.visible = True
-    return trueSprite
-
-def checkCorrect(answer_key,truthVal,spriteNum):
-    #this function checks if the user's evaluation of the expression is correct
-    #makes a happy ding sound then returns True if correct
-    #makes a sad buzzer sound then returns False if incorrect
-    if answer_key[spriteNum] == truthVal:
-        correct_sound.play()
-        return True
-    elif answer_key[spriteNum] != truthVal:
-        incorrect_sound.play()
-        return False
-
 ```
 
 ## Main
+
+Another module that was made is the main engine. This will be the module that the player
+will run if he/she wants to play the game. The main engine contains all the necessary functions
+in order for the game to run. Pyglet, random and the engine(user-defined module) will be
+imported in this module.
+
+
+Here is where the window is created and modified. Sprites of propositional statements are also
+created with the use of the engine module. Sound files such as background music, correct
+sound, and incorrect sound are then initialized. Global variables that serve as statuses such as
+score, number of sprites, wrong, booleans (start and enter), and the text file that is used to
+update scores are declared. With the use of the pyglet module, texts to be displayed are also
+initialized (i.e. scores, game over, and high scores).
+A class named Triangle is also created to make a useless but pretty triangle.
+
+For the window events, the decorator @window.event manages it.
+
+There are functions that are defined in this module aside from the on_draw() and
+on_key_press(symbol,modifiers) that are managed by @window.event:
+
+
+1.) removeSprite(spriteNo) - removes a sprite from visibility after it has been correctly evaluate
+by the user.
+2.)eraseAllSprites() - erases all the sprites and creates the game over screen. It also shows and
+updates the high score.
+3.)reachZero() - causes the game to be over if a sprite reaches the bottom of the window or if all
+the sprites have been evaluated.
+4.)checkTrue() - checks if the current sprite being evaluated was correctly guessed as having
+the value of True
+5.)checkFalse() - This function checks if the current sprite being evaluated was correctly
+guessed as having the value of False
+6.)startGame(answer_key,spriteNames) - This function just starts the game. It also shows the
+score counter
+6.a) update(dt) - This function updates the positions of the sprites. This is to show that
+they are falling
+And lastly, pyglet.app.run() is called to run the whole application.
+
+### Sample Code
+```markdown
+"""
+Start of sound file creation
+"""
+#creates a player and queues the song
+background_player = pyglet.media.Player()
+background_music = pyglet.media.load('sounds/background-music.mp3')
+background_player.queue(background_music) 
+#keeps playing for as long as the app is running
+background_player.eos_action = pyglet.media.SourceGroup.loop
+background_player.play()
+
+correct_sound = pyglet.resource.media('sounds/correct.mp3', streaming = False)
+
+incorrect_sound = pyglet.resource.media('sounds/incorrect.mp3', streaming = False)
+
+"""
+End of sound file creation
+"""
+```
 
